@@ -1,0 +1,30 @@
+{
+    "policy": {
+        "applicationLanguage": "utf-8",
+        "name": "grpc_case_insensitive",
+        "template": {
+            "name": "POLICY_TEMPLATE_NGINX_BASE"
+        },
+        "caseInsensitive": true,
+        "idl-files": [
+            {
+                "fileName": "grpc_greeter.proto",
+                "link": "file:///opt/app_protect/custom_policy/grpc_greeter.proto"
+            }
+        ],
+        "grpc-profiles": [
+            {
+                "name": "gProf1",
+                "description": "My first profile",
+                "associateUrls": true,
+                "idlFiles": [
+                    {
+                        "idlFile": {
+                            "fileName": "grpc_greeter.proto"
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}
