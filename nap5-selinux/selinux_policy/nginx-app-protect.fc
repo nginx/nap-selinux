@@ -1,0 +1,1 @@
+/opt/app_protect(/.*)?    system_u:object_r:httpd_sys_rw_content_t:s0
