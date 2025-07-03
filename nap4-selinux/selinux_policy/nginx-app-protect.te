@@ -1,0 +1,164 @@
+policy_module(nginx-app-protect, 1.1.10)
+
+########################################
+#
+# Declarations
+#
+
+# Compiler types
+type nap-compiler_t;
+type nap-compiler_exec_t;
+init_daemon_domain(nap-compiler_t, nap-compiler_exec_t)
+
+type nap-compiler_log_t;
+logging_log_file(nap-compiler_log_t)
+
+type nap-compiler_unit_file_t;
+systemd_unit_file(nap-compiler_unit_file_t)
+
+type nap-compiler_conf_t;
+files_type(nap-compiler_conf_t)
+
+type nap-compiler_var_t;
+files_type(nap-compiler_var_t)
+
+# Engine types
+type nap-engine_t;
+type nap-engine_exec_t;
+init_daemon_domain(nap-engine_t, nap-engine_exec_t)
+
+type nap-engine_unit_file_t;
+systemd_unit_file(nap-engine_unit_file_t)
+
+
+
+require {
+    type faillog_t;
+    type httpd_t;
+    type lastlog_t;
+    type ld_so_cache_t;
+    type memcache_port_t;
+    type node_t;
+    type proc_t;
+    type security_t;
+    type shadow_t;
+    type unreserved_port_t;
+    type http_port_t;
+    type systemd_logind_t;
+    type systemd_logind_sessions_t;
+    type syslogd_port_t;
+    type random_device_t;
+    type rsh_port_t;
+    type var_run_t;
+    class dbus { send_msg };
+    class netlink_selinux_socket bind;
+    class passwd { passwd rootok };
+    class file map;
+    
+}
+
+########################################
+#
+# Compiler policy
+#
+
+manage_dirs_pattern(nap-compiler_t, nap-compiler_log_t, nap-compiler_log_t)
+manage_files_pattern(nap-compiler_t, nap-compiler_log_t, nap-compiler_log_t)
+manage_lnk_files_pattern(nap-compiler_t, nap-compiler_log_t, nap-compiler_log_t)
+logging_log_filetrans(nap-compiler_t, nap-compiler_log_t, { dir file lnk_file })
+
+domain_use_interactive_fds(nap-compiler_t)
+
+miscfiles_read_localization(nap-compiler_t)
+
+# Allow run perl
+corecmd_exec_all_executables(nap-compiler_t)
+
+#============= nap-compiler_t ==============
+allow nap-compiler_t self:tcp_socket { bind create ioctl listen setopt accept read write };
+allow nap-compiler_t self:fifo_file rw_fifo_file_perms;
+allow nap-compiler_t self:unix_stream_socket create_stream_socket_perms;
+allow nap-compiler_t node_t:tcp_socket node_bind;
+allow nap-compiler_t proc_t:file { getattr open read };
+allow nap-compiler_t unreserved_port_t:tcp_socket name_bind;
+allow nap-compiler_t nap-compiler_conf_t:file { getattr ioctl open read };
+allow nap-compiler_t nap-compiler_conf_t:dir search;
+allow nap-compiler_t nap-compiler_var_t:dir { getattr open read write search add_name };
+allow nap-compiler_t nap-compiler_var_t:fifo_file { create getattr ioctl open read write };
+allow nap-compiler_t nap-compiler_var_t:file { create execute getattr ioctl lock open read write };
+
+
+########################################
+#
+# Engine policy
+#
+
+domain_use_interactive_fds(nap-engine_t)
+
+logging_send_syslog_msg(nap-engine_t)
+
+miscfiles_read_localization(nap-engine_t)
+
+sysnet_dns_name_resolve(nap-engine_t)
+
+#============= nap-engine_t ==============
+allow nap-engine_t self:process { fork signal_perms };
+allow nap-engine_t self:fifo_file rw_fifo_file_perms;
+allow nap-engine_t self:unix_stream_socket create_stream_socket_perms;
+allow nap-engine_t ld_so_cache_t:file execute;
+allow nap-engine_t nap-compiler_conf_t:dir search;
+allow nap-engine_t nap-compiler_conf_t:file { getattr open read };
+allow nap-engine_t nap-compiler_log_t:file { open write };
+allow nap-engine_t nap-compiler_log_t:dir { search write };
+allow nap-engine_t nap-compiler_var_t:dir { add_name remove_name write search getattr };
+allow nap-engine_t nap-compiler_var_t:fifo_file { create open read write };
+allow nap-engine_t nap-compiler_var_t:file { map getattr open read create write execute };
+allow nap-engine_t nap-compiler_var_t:sock_file { create unlink };
+allow nap-engine_t nap-compiler_var_t:lnk_file read;
+allow nap-engine_t node_t:tcp_socket node_bind;
+allow nap-engine_t random_device_t:chr_file { open read };
+allow nap-engine_t rsh_port_t:tcp_socket name_connect;
+allow nap-engine_t self:process execmem;
+allow nap-engine_t syslogd_port_t:tcp_socket name_connect;
+files_delete_isid_type_sock_files(nap-engine_t)
+files_list_isid_type_dirs(nap-engine_t)
+files_read_isid_type_files(nap-engine_t)
+logging_create_generic_logs(nap-engine_t)
+
+########################################
+#
+# Nginx policy extension
+#
+
+corenet_tcp_connect_memcache_port(httpd_t)
+
+#============= httpd_t ==============
+allow httpd_t faillog_t:file { open read write };
+allow httpd_t lastlog_t:file { open read write };
+allow httpd_t memcache_port_t:tcp_socket name_connect;
+allow httpd_t self:passwd { passwd rootok };
+allow httpd_t self:process setrlimit;
+allow httpd_t self:netlink_selinux_socket { create bind write };
+allow httpd_t self:netlink_audit_socket { create write nlmsg_relay read };
+allow httpd_t self:capability { audit_write net_admin };
+allow httpd_t security_t:security compute_av;
+allow httpd_t systemd_logind_t:dbus send_msg;
+allow httpd_t systemd_logind_sessions_t:fifo_file write;
+allow httpd_t shadow_t:file { getattr open read };
+allow httpd_t unreserved_port_t:tcp_socket name_connect;
+allow httpd_t http_port_t:tcp_socket name_connect;
+allow httpd_t nap-compiler_conf_t:file { getattr open read ioctl create write };
+allow httpd_t nap-compiler_conf_t:dir { add_name write };
+allow httpd_t nap-compiler_var_t:dir { create read write add_name remove_name rmdir setattr };
+allow httpd_t nap-compiler_var_t:lnk_file { create getattr unlink read };
+allow httpd_t nap-compiler_var_t:sock_file write;
+allow httpd_t nap-compiler_log_t:file { create getattr open read write unlink map };
+allow httpd_t nap-compiler_log_t:dir {write add_name remove_name} ;
+allow httpd_t var_run_t:file { read write open unlink};
+allow httpd_t nap-compiler_var_t:file { create getattr setattr lock unlink open read write rename execute execute_no_trans ioctl map link };
+allow httpd_t nap-engine_t:unix_stream_socket connectto;
+allow httpd_t unlabeled_t:sock_file write;
+logging_rw_generic_logs(httpd_t)
+
+#============= systemd_logind_t ==============
+allow systemd_logind_t httpd_t:dbus send_msg;
