@@ -25,6 +25,7 @@ require {
     type var_t;                 # For /var files
     type usr_t;                 # For /usr files
     type var_run_t;
+    type hplip_port_t;
     class dbus { send_msg };
     class netlink_selinux_socket bind;
     class passwd { passwd rootok };
@@ -52,6 +53,7 @@ allow httpd_t shadow_t:file { getattr open read };
 allow httpd_t unreserved_port_t:tcp_socket name_connect;
 allow httpd_t http_port_t:tcp_socket name_connect;
 allow httpd_t var_run_t:file { read write open};
+allow httpd_t hplip_port_t:tcp_socket name_connect;
 logging_rw_generic_logs(httpd_t)
 
 #============= App Protect Specific Rules ==============
