@@ -1,0 +1,63 @@
+policy_module(nginx-app-protect, 1.1.10)
+
+require {
+    type faillog_t;
+    type httpd_t;
+    type lastlog_t;
+    type ld_so_cache_t;
+    type memcache_port_t;
+    type node_t;
+    type proc_t;
+    type security_t;
+    type shadow_t;
+    type unreserved_port_t;
+    type http_port_t;
+    type systemd_logind_t;
+    type systemd_logind_sessions_t;
+    type syslogd_port_t;
+    type random_device_t;
+    type rsh_port_t;
+    type httpd_sys_rw_content_t;  
+    type bin_t;                 # For /bin utilities
+    type mount_exec_t;          # For mount command
+    type ld_so_cache_t;         # For shared libraries
+    type etc_t;                 # For /etc files
+    type var_t;                 # For /var files
+    type usr_t;                 # For /usr files
+    type var_run_t;
+    class dbus { send_msg };
+    class netlink_selinux_socket bind;
+    class passwd { passwd rootok };
+    class file { map read write open create execute getattr };
+    class tcp_socket { name_connect name_bind };    
+}
+
+########################################
+
+corenet_tcp_connect_memcache_port(httpd_t)
+
+#============= httpd_t ==============
+allow httpd_t faillog_t:file { open read write };
+allow httpd_t lastlog_t:file { open read write };
+allow httpd_t memcache_port_t:tcp_socket name_connect;
+allow httpd_t self:passwd { passwd rootok };
+allow httpd_t self:process setrlimit;
+allow httpd_t self:netlink_selinux_socket { create bind write };
+allow httpd_t self:netlink_audit_socket { create write nlmsg_relay read };
+allow httpd_t self:capability { audit_write net_admin };
+allow httpd_t security_t:security compute_av;
+allow httpd_t systemd_logind_t:dbus send_msg;
+allow httpd_t systemd_logind_sessions_t:fifo_file write;
+allow httpd_t shadow_t:file { getattr open read };
+allow httpd_t unreserved_port_t:tcp_socket name_connect;
+allow httpd_t http_port_t:tcp_socket name_connect;
+allow httpd_t var_run_t:file { read write open};
+logging_rw_generic_logs(httpd_t)
+
+#============= App Protect Specific Rules ==============
+# Allow access to App Protect directories
+allow httpd_t httpd_sys_rw_content_t:dir { search read write add_name remove_name };
+allow httpd_t httpd_sys_rw_content_t:file { create read write open unlink getattr setattr rename};
+
+#============= systemd_logind_t ==============
+allow systemd_logind_t httpd_t:dbus send_msg;
