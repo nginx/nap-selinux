@@ -1,0 +1,7 @@
+{
+    "waf-settings": {
+        "cookie-protection": {
+            "seed": "12345a6"
+        }
+    } 
+} 
