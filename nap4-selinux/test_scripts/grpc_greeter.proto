@@ -1,0 +1,96 @@
+syntax = "proto3";
+package test;
+
+// The greeting service definition.
+service Greeter {
+  // Sends a greeting
+  //both unary
+  rpc BothUnary (HelloRequest) returns (HelloReply) {}
+  rpc BothUnaryGetRepeatedStr (HelloRequest) returns (HelloReply) {}
+  // Both Unary response with all data
+  rpc BothUnaryResponseAllData (HelloRequest) returns (HelloReply) {}
+  // Both Unary response with all data
+  rpc bothunaryresponsealldatalower (HelloRequest) returns (HelloReply) {}
+  // Both Unary response with all data - lowercase format
+  rpc BOTHUNARYRESPONSEALLDATAUPPER (HelloRequest) returns (HelloReply) {}
+  // Both Unary response with all data - uppercase format
+  rpc BoThUnArYrEsponsEALLDatAmixED (HelloRequest) returns (HelloReply) {}
+}
+
+message HelloRequest {
+  string name = 1;
+  double doublevar = 2;
+  float floatvar = 3;
+  int32 int32var = 4;
+  int64 int64var = 5;
+  uint32 uint32var = 6;
+  uint64 uint64var = 7;
+  sint32 sint32var = 8;
+  sint64 sint64var = 9;
+  fixed32 fixed32var = 10;
+  fixed64 fixed64var = 11;
+  sfixed32 sfixed32var = 12;
+  sfixed64 sfixed64var = 13;
+  bool boolvar = 14;
+  bytes bytesvar = 15;
+  repeated string tags = 16;
+  enum MyEnum {
+    UNIVERSAL = 0;
+    WEB = 1;
+    IMAGES = 2;
+    LOCAL = 3;
+    NEWS = 4;
+    PRODUCTS = 5;
+    VIDEO = 6;
+  }
+  MyEnum enumvar = 17;
+  map<string,string> mapvar = 18;
+  MyNested embstringvar = 19;
+
+  message MyInner {  // Level 2
+    int64 innerint64 = 31;
+    bool innerbool = 32;
+    string innerstring = 33;
+  }
+  int32 number_of_reply_stream = 10002;
+  float delay_between_stream = 10003;
+  string extrastring = 10004;
+  int32 extraint = 10005;
+  float extrafloat = 10006;
+  string message_id = 18000;
+}
+
+message HelloReply {
+  string message = 1;
+}
+
+message MyNested {
+  string name = 1;
+  double doublevar = 2;
+  float floatvar = 3;
+  int32 int32var = 4;
+  int64 int64var = 5;
+  uint32 uint32var = 6;
+  uint64 uint64var = 7;
+  sint32 sint32var = 8;
+  sint64 sint64var = 9;
+  fixed32 fixed32var = 10;
+  fixed64 fixed64var = 11;
+  sfixed32 sfixed32var = 12;
+  sfixed64 sfixed64var = 13;
+  bool boolvar = 14;
+  bytes bytesvar = 15;
+  repeated string tags = 16;
+  enum MyEnum {
+    UNIVERSAL = 0;
+    WEB = 1;
+    IMAGES = 2;
+    LOCAL = 3;
+    NEWS = 4;
+    PRODUCTS = 5;
+    VIDEO = 6;
+  }
+  MyEnum enumvar = 17;
+  map<string,string> mapvar = 18;
+  HelloRequest embstringvar = 19;
+}
