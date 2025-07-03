@@ -1,0 +1,73 @@
+{
+    "policy" : {
+       "name" : "test_api_protect_strict_policy",
+       "description" : "NGINX App Protect Strict Policy",
+       "template": {
+         "name": "POLICY_TEMPLATE_NGINX_BASE"
+       },
+         "json-validation-files": [
+             {
+                 "fileName": "TestSchema.json",
+                 "link": "file:///opt/app_protect/custom_policy/wafmc_3229_TestSchema.json"
+             }
+         ],
+         "json-profiles": [
+          {
+             "name" : "Default",
+             "defenseAttributes" : {
+                "tolerateJSONParsingWarnings" : false,
+                "maximumTotalLengthOfJSONData": "10000"
+             }
+          },
+             {
+                 "name": "test_schema",
+                 "defenseAttributes": {
+                     "maximumArrayLength": "any",
+                     "maximumStructureDepth": "any",
+                     "maximumTotalLengthOfJSONData": 1000,
+                     "maximumValueLength": "any",
+                     "tolerateJSONParsingWarnings": false
+                 },
+                 "validationFiles": [
+                     {
+                         "isPrimary": true,
+                         "jsonValidationFile": {
+                             "fileName": "TestSchema.json"
+                         }
+                     }
+                 ]
+             }
+         ],
+       "urls" : [
+          {
+             "name" : "*",
+             "type" : "wildcard",
+             "method" : "*",
+             "isAllowed" : true,
+             "disallowFileUploadOfExecutables" : true
+          },
+             {
+                 "name": "/poc/appprotect/usecases/json",
+                 "type": "explicit",
+                 "method": "POST",
+                 "attackSignaturesCheck": true,
+                 "disallowFileUploadOfExecutables": false,
+                 "isAllowed": true,
+                 "mandatoryBody": true,
+                 "methodsOverrideOnUrlCheck": false,
+                 "urlContentProfiles": [
+                     {
+                         "contentProfile": {
+                             "name": "test_schema"
+                         },
+                         "headerName": "*",
+                         "headerOrder": "default",
+                         "headerValue": "*",
+                         "type": "json"
+                     }
+                 ] 
+             }
+       ]
+ }
+ }
+ 
