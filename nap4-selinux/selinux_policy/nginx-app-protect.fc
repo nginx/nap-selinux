@@ -1,0 +1,11 @@
+/usr/lib/systemd/system/nginx-app-protect.service		--	gen_context(system_u:object_r:nap-engine_unit_file_t,s0)
+
+/usr/share/ts/bin/bd-socket-plugin		--	gen_context(system_u:object_r:nap-engine_exec_t,s0)
+
+/var/log/app_protect(/.*)?		gen_context(system_u:object_r:nap-compiler_log_t,s0)
+
+/etc/app_protect(/.*)?		gen_context(system_u:object_r:nap-compiler_conf_t,s0)
+
+/opt/app_protect(/.*)?		gen_context(system_u:object_r:nap-compiler_var_t,s0)
+
+/shared(/.*)?		gen_context(system_u:object_r:nap-compiler_var_t,s0)
